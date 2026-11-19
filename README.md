@@ -3,7 +3,7 @@
 Static site: a scroll-scrubbed snake film that ends on the Gadsden flag, a short history of the flag (1751–1776), Alon (the mascot), and a join section.
 
 Alon's parts of the page:
-- He peeks into the final flag frame of the film.
+- He stands in the first screen, rides along the film (ducks into the corner, pops up with lines between captions, ends with "Told you.") and can be tapped. His film lines: `BUDDY_LINES` in the last script.
 - **Tale of the tape** card: Alon follows the pointer, blinks, and says a line with a rattle sound when tapped.
 - **Alon was there**: a film strip of history scenes that slides sideways as you scroll.
 - **Shirt maker**: type text, Alon wears it, save as PNG.

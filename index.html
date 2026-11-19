@@ -100,13 +100,13 @@ p { text-wrap: pretty; }
 
 /* ---------- the film ---------- */
 .film {
-  --screens: 9;
+  --screens: 6;
   position: relative;
   height: calc((var(--screens) + 1) * 100vh);
   height: calc((var(--screens) + 1) * 100svh);
   background: var(--film-bg, var(--arena));
 }
-@media (orientation: portrait) { .film { --screens: 7; } }
+@media (orientation: portrait) { .film { --screens: 5; } }
 .film-stage {
   position: sticky; top: 0;
   height: 100vh; height: 100svh;
@@ -174,7 +174,8 @@ p { text-wrap: pretty; }
   margin-bottom: -0.04em;
 }
 .hero-motto { grid-area: motto; margin: 0; font-style: italic; font-size: var(--step-2); line-height: 1.2; }
-.hero-cue {
+.hero-cue { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.hero-cue-old {
   grid-area: cue; margin: 0 0 0.5rem; text-align: right;
   font-size: var(--step--1); color: var(--lamplight-dim);
   display: grid; gap: 2px;
@@ -292,9 +293,9 @@ p { text-wrap: pretty; }
 /* ---------- the mascot ---------- */
 .mascot-intro {
   background: var(--gadsden); color: var(--ink);
-  padding: 0 var(--gutter) clamp(64px, 8vw, 120px);
+  padding: clamp(48px, 7vw, 112px) var(--gutter) clamp(56px, 7vw, 104px);
 }
-.mascot-intro-inner { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); border-top: 4px solid var(--ink); padding-top: clamp(48px, 6vw, 88px); align-items: end; }
+.mascot-intro-inner { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: end; }
 .mascot-stage {
   position: relative; overflow: hidden;
   aspect-ratio: 3168 / 1344;
@@ -370,7 +371,7 @@ p { text-wrap: pretty; }
 }
 @media (max-width: 520px) {
   .nav ul { gap: 14px; }
-  .nav ul li:first-child { display: none; }
+  .nav ul li:nth-child(2) { display: none; }
   .brand span { font-size: 1.5rem; }
   .brand img { height: 32px; }
   .timeline li { grid-template-columns: 1fr; }
@@ -378,30 +379,48 @@ p { text-wrap: pretty; }
   .place { margin-top: 0; }
 }
 
-/* ---------- Alon peeks into the final flag frame ---------- */
-.peek {
-  position: absolute; right: clamp(18px, 9vw, 170px); bottom: 0;
-  width: min(30vw, 320px);
-  transform: translateY(105%);
+/* ---------- Alon rides along with the film ---------- */
+.buddy {
+  --bh: min(68svh, 640px);
+  position: absolute; right: clamp(16px, 4vw, 72px); bottom: 0; z-index: 3;
+  height: var(--bh); aspect-ratio: 1123 / 1500;
   pointer-events: none;
 }
-.peek img { width: 100%; height: auto; transform: rotate(-7deg); transform-origin: 50% 100%; }
-.peek-bubble {
-  position: absolute; right: 86%; top: 2%;
-  margin: 0; padding: 0.45em 0.8em;
-  background: var(--ink); color: var(--gadsden);
-  font-weight: 700; font-size: var(--step-0); white-space: nowrap;
-  opacity: 0; transform: translateY(6px); transition: opacity 0.25s ease, transform 0.25s ease;
+.buddy-fig {
+  position: absolute; inset: 0; margin: 0; padding: 0; border: 0; background: none; color: inherit;
+  cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent;
+  transform-origin: 50% 100%; will-change: transform; z-index: 1;
 }
-.peek-bubble::after {
-  content: ""; position: absolute; right: -10px; top: 50%; margin-top: -7px;
-  border: 7px solid transparent; border-left: 10px solid var(--ink); border-right: 0;
+.buddy-fig:focus-visible { outline-offset: -6px; }
+.buddy-fig canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.buddy-fig.shake canvas { animation: alon-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+.buddy-bubble {
+  position: absolute; right: var(--bub-r, 86%); bottom: var(--bub-y, 58%);
+  width: max-content; max-width: 13em; margin: 0; padding: 0.55em 0.85em;
+  background: var(--lamplight); color: var(--ink);
+  font-weight: 700; font-size: var(--step-0); line-height: 1.25;
+  opacity: 0; transform: translateY(6px) scale(0.96); transform-origin: 100% 100%;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none; z-index: 2;
 }
-.peek[data-talk="true"] .peek-bubble { opacity: 1; transform: none; }
+.buddy-bubble.on { opacity: 1; transform: none; }
+.buddy-bubble::after {
+  content: ""; position: absolute; right: -12px; bottom: 12px;
+  border: 8px solid transparent; border-left: 12px solid var(--lamplight); border-right: 0;
+}
+.film-stage[data-tone="yellow"] .buddy-bubble { background: var(--ink); color: var(--gadsden); }
+.film-stage[data-tone="yellow"] .buddy-bubble::after { border-left-color: var(--ink); }
 @media (orientation: portrait) {
-  .peek { width: 44vw; right: 5vw; }
+  .film-stage .beat[data-pos] { bottom: calc(19svh + 14px + env(safe-area-inset-bottom)); }
+  .buddy { --bh: 27svh; right: 3vw; }
+  .buddy-bubble { font-size: 0.95rem; max-width: 11em; }
+  .beat-hero { right: calc(var(--gutter) + 42vw); }
+  .hero-title { font-size: 18vw; }
 }
-:is(.no-film, html:not(.js)) .peek { display: none; }
+@media (orientation: landscape) {
+  .beat-hero { right: calc(var(--gutter) + 32vw); }
+}
+:is(.no-film, html:not(.js)) .buddy { display: none; }
 
 /* ---------- Alon: tale of the tape ---------- */
 .card {
@@ -601,7 +620,7 @@ p { text-wrap: pretty; }
 </style>
 </head>
 <body>
-<a class="skip" href="#legend">Skip the film</a>
+<a class="skip" href="#alon">Skip to Alon</a>
 
 <nav class="nav" id="nav" aria-label="Main" data-surface="dark">
   <a class="brand" href="#top" aria-label="GADSDEN, back to the top">
@@ -609,8 +628,9 @@ p { text-wrap: pretty; }
     <span>Gadsden</span>
   </a>
   <ul>
-    <li><a href="#legend">The legend</a></li>
     <li><a href="#alon">Alon</a></li>
+    <li><a href="#legend">The legend</a></li>
+    <li><a href="#shirt">Make a shirt</a></li>
     <li><a href="#join">Join</a></li>
   </ul>
 </nav>
@@ -626,7 +646,7 @@ p { text-wrap: pretty; }
         <div class="beat-text">
           <h1 class="hero-title">Gadsden</h1>
           <p class="hero-motto">Don’t tread on me.</p>
-          <p class="hero-cue"><span>Scroll to wake the snake</span><span class="hero-load" id="film-load" aria-hidden="true"></span></p>
+          <p class="hero-cue"><span class="hero-load" id="film-load" aria-hidden="true"></span></p>
         </div>
       </header>
 
@@ -646,7 +666,7 @@ p { text-wrap: pretty; }
         </div>
       </figure>
 
-      <figure class="beat" data-in="0.515" data-out="0.625" data-pos="right">
+      <figure class="beat" data-in="0.515" data-out="0.625" data-pos="left">
         <img class="beat-still" src="assets/still-4.webp" alt="The camera glides along the snake's scales." loading="lazy" width="1920" height="1080">
         <div class="beat-text">
           <blockquote><p>“I went back and counted them and found them just thirteen, exactly the number of the Colonies united in America.”</p></blockquote>
@@ -675,12 +695,54 @@ p { text-wrap: pretty; }
         <p class="motto-note">The Gadsden flag, 1775</p>
       </div>
 
-      <div class="peek" id="peek" aria-hidden="true">
-        <p class="peek-bubble">Told you.</p>
-        <img src="assets/alon/alon-peek.webp" alt="" width="784" height="700">
+      <div class="buddy" id="buddy">
+        <p class="buddy-bubble" id="buddy-bubble" role="status" aria-live="polite"></p>
+        <button class="buddy-fig" id="buddy-fig" type="button" aria-label="Poke Alon">
+          <canvas id="buddy-canvas"></canvas>
+        </button>
       </div>
 
       <div class="rattle" id="rattle" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="mascot" id="alon" aria-labelledby="mascot-title">
+    <div class="mascot-intro" data-surface="yellow">
+      <div class="mascot-intro-inner">
+        <h2 id="mascot-title">The snake has a sidekick. His name is Alon.</h2>
+        <p>Somewhere between 1775 and the group chat, the snake picked up company. Gadsden cap on, white goggles down, and a tank top with one piece of advice. Deadpan, poolside and impossible to tread on.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="alon-card" data-surface="dark" aria-labelledby="card-name">
+    <div class="card-inner">
+      <div class="card-copy">
+        <p class="card-corner">In the yellow corner</p>
+        <h2 class="card-name" id="card-name">Alon</h2>
+        <p class="card-sub">The snake’s sidekick. Deadpan since 1775, if you ask him.</p>
+        <h3 class="tape-title">Tale of the tape</h3>
+        <dl class="tape">
+          <div><dt>Corner</dt><dd>Yellow</dd></div>
+          <div><dt>Stance</dt><dd>Unbothered</dd></div>
+          <div><dt>Headwear</dt><dd>Gadsden cycling cap</dd></div>
+          <div><dt>Eyewear</dt><dd>White goggles, never off</dd></div>
+          <div><dt>Fights started</dt><dd class="num">0</dd></div>
+          <div><dt>Fights quit</dt><dd class="num">0</dd></div>
+        </dl>
+      </div>
+      <div class="card-stage" id="card-stage">
+        <canvas class="dust" id="card-dust" aria-hidden="true"></canvas>
+        <button class="alon-poke" id="alon-poke" type="button" aria-label="Poke Alon">
+          <canvas class="alon-canvas" id="alon-canvas"></canvas>
+          <img class="alon-fallback" src="assets/alon/alon-rig.webp" alt="" width="1123" height="1500" loading="lazy">
+        </button>
+        <p class="bubble" id="alon-bubble" role="status" aria-live="polite"></p>
+        <div class="card-controls">
+          <span>Tap Alon.</span>
+          <button class="sound-toggle" id="alon-sound" type="button" aria-pressed="true">Sound on</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -736,57 +798,6 @@ p { text-wrap: pretty; }
           </div>
         </li>
       </ol>
-    </div>
-  </section>
-
-  <section class="mascot" id="alon" aria-labelledby="mascot-title">
-    <div class="mascot-intro" data-surface="yellow">
-      <div class="mascot-intro-inner">
-        <h2 id="mascot-title">The snake has a sidekick. His name is Alon.</h2>
-        <p>Somewhere between 1775 and the group chat, the snake picked up company. Gadsden cap on, white goggles down, and a tank top with one piece of advice. Deadpan, poolside and impossible to tread on.</p>
-      </div>
-    </div>
-    <div class="mascot-stage" data-surface="light">
-      <picture class="mascot-layer">
-        <source media="(orientation: portrait)" srcset="assets/mascot-pool-portrait.webp" width="864" height="1080">
-        <img src="assets/mascot-pool.webp" width="2400" height="1018" alt="The GADSDEN mascot: a deadpan cartoon kid in a yellow Don't Tread On Me cap, white goggles and a Stop Being Poor tank top, standing at a hotel pool with a pyramid behind." loading="lazy">
-      </picture>
-      <p class="depth-word" aria-hidden="true"><span>Stay</span><span>coiled</span></p>
-      <picture class="mascot-layer" aria-hidden="true">
-        <source media="(orientation: portrait)" srcset="assets/mascot-cutout-portrait.webp" width="864" height="1080">
-        <img src="assets/mascot-cutout.webp" width="2400" height="1018" alt="" loading="lazy">
-      </picture>
-    </div>
-  </section>
-
-  <section class="card" id="alon-card" data-surface="dark" aria-labelledby="card-name">
-    <div class="card-inner">
-      <div class="card-copy">
-        <p class="card-corner">In the yellow corner</p>
-        <h2 class="card-name" id="card-name">Alon</h2>
-        <p class="card-sub">The snake’s sidekick. Deadpan since 1775, if you ask him.</p>
-        <h3 class="tape-title">Tale of the tape</h3>
-        <dl class="tape">
-          <div><dt>Corner</dt><dd>Yellow</dd></div>
-          <div><dt>Stance</dt><dd>Unbothered</dd></div>
-          <div><dt>Headwear</dt><dd>Gadsden cycling cap</dd></div>
-          <div><dt>Eyewear</dt><dd>White goggles, never off</dd></div>
-          <div><dt>Fights started</dt><dd class="num">0</dd></div>
-          <div><dt>Fights quit</dt><dd class="num">0</dd></div>
-        </dl>
-      </div>
-      <div class="card-stage" id="card-stage">
-        <canvas class="dust" id="card-dust" aria-hidden="true"></canvas>
-        <button class="alon-poke" id="alon-poke" type="button" aria-label="Poke Alon">
-          <canvas class="alon-canvas" id="alon-canvas"></canvas>
-          <img class="alon-fallback" src="assets/alon/alon-rig.webp" alt="" width="1123" height="1500" loading="lazy">
-        </button>
-        <p class="bubble" id="alon-bubble" role="status" aria-live="polite"></p>
-        <div class="card-controls">
-          <span>Tap Alon.</span>
-          <button class="sound-toggle" id="alon-sound" type="button" aria-pressed="true">Sound on</button>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -860,6 +871,20 @@ p { text-wrap: pretty; }
     </div>
   </section>
 
+  <section class="pool" id="stay-coiled" aria-label="Alon at the pool">
+    <div class="mascot-stage" data-surface="light">
+      <picture class="mascot-layer">
+        <source media="(orientation: portrait)" srcset="assets/mascot-pool-portrait.webp" width="864" height="1080">
+        <img src="assets/mascot-pool.webp" width="2400" height="1018" alt="The GADSDEN mascot: a deadpan cartoon kid in a yellow Don't Tread On Me cap, white goggles and a Stop Being Poor tank top, standing at a hotel pool with a pyramid behind." loading="lazy">
+      </picture>
+      <p class="depth-word" aria-hidden="true"><span>Stay</span><span>coiled</span></p>
+      <picture class="mascot-layer" aria-hidden="true">
+        <source media="(orientation: portrait)" srcset="assets/mascot-cutout-portrait.webp" width="864" height="1080">
+        <img src="assets/mascot-cutout.webp" width="2400" height="1018" alt="" loading="lazy">
+      </picture>
+    </div>
+  </section>
+
   <section class="join" id="join" data-surface="dark" aria-labelledby="join-title">
     <video class="join-video" id="join-video" muted loop playsinline preload="none" poster="assets/alon/alon-arena-poster.webp" aria-hidden="true">
       <source src="assets/alon/alon-arena-loop.mp4" type="video/mp4">
@@ -898,7 +923,7 @@ p { text-wrap: pretty; }
   const motto = lockup.querySelector('.motto');
   const loadEl = document.getElementById('film-load');
   const rattle = document.getElementById('rattle');
-  const peek = document.getElementById('peek');
+  window.gadsdenFilm = { p: 0, load: 0, off: false };
   const surfaces = [...document.querySelectorAll('[data-surface]')];
   const YELLOW = '#fdd711';
 
@@ -940,6 +965,7 @@ p { text-wrap: pretty; }
   }, { passive: true });
 
   function noFilm() {
+    window.gadsdenFilm.off = true;
     root.classList.add('no-film');
     S.running = false;
     for (const el of stage.querySelectorAll('.beat, .lockup')) { el.style.opacity = ''; el.style.transform = ''; }
@@ -961,7 +987,7 @@ p { text-wrap: pretty; }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce || !('createImageBitmap' in window) || !window.fetch || !ctx) { noFilm(); return; }
 
-  function showLoad(f) { loadEl.textContent = f < 1 ? `Loading film ${Math.round(f * 100)}%` : ''; }
+  function showLoad(f) { window.gadsdenFilm.load = f; loadEl.textContent = f < 1 ? `Loading film ${Math.round(f * 100)}%` : ''; }
 
   async function loadPack(pack, onBytes) {
     const res = await fetch(pack.url);
@@ -1172,9 +1198,6 @@ p { text-wrap: pretty; }
     lockup.style.opacity = m.toFixed(3);
     lockup.style.setProperty('--lock-shift', `${((1 - m) * 12).toFixed(1)}px`);
     rattle.style.opacity = (1 - m).toFixed(3);
-    const pk = smooth(0.976, 0.995, p);
-    peek.style.transform = `translateY(${(105 - pk * 67).toFixed(1)}%)`;
-    peek.dataset.talk = pk > 0.92 ? 'true' : 'false';
     stage.style.setProperty('--scrim', (1 - smooth(0.9, 0.945, p)).toFixed(3));
     stage.dataset.tone = p > 0.935 ? 'yellow' : 'dark';
     filmEl.style.setProperty('--film-bg', p > 0.92 ? YELLOW : 'var(--arena)');
@@ -1192,6 +1215,7 @@ p { text-wrap: pretty; }
       S.cur += (S.target - S.cur) * a;
       if (Math.abs(S.target - S.cur) < 0.00005) S.cur = S.target;
       filmProgress = S.cur;
+      window.gadsdenFilm.p = S.cur;
       update(S.cur);
       updateNav();
     }
@@ -1506,7 +1530,103 @@ p { text-wrap: pretty; }
       drawAlon(cctx, { x: 0, y: 0, w: cv.width, h: cv.height }, { lines: shirtLines(shirtText), blink: b, glint: { x: R.x, y: R.y } });
       drawDust(dt, now);
     }
+    buddyFrame(now, dt);
     requestAnimationFrame(cardFrame);
+  }
+
+  /* ---------- Alon rides along with the film ---------- */
+  const buddy = document.getElementById('buddy');
+  const bfig = document.getElementById('buddy-fig');
+  const bcv = document.getElementById('buddy-canvas');
+  const bctx = bcv.getContext('2d');
+  const bbub = document.getElementById('buddy-bubble');
+  const filmSec = document.getElementById('film');
+  // Lines between the film's captions, keyed to scroll position in the film.
+  const BUDDY_LINES = [
+    { a: 0.088, b: 0.124, text: 'It’s waking up.' },
+    { a: 0.292, b: 0.338, text: 'Here comes the eye.' },
+    { a: 0.628, b: 0.656, text: 'Thirteen. I counted.' },
+    { a: 0.778, b: 0.798, text: 'Never started one either.' },
+    { a: 0.9, b: 0.946, text: 'Here we go.' },
+    { a: 0.976, b: 9, text: 'Told you.' },
+  ];
+  const BU = { s: 1, v: 1, tx: 0, ty: 0, x: 0, y: 0, shown: '', holdUntil: 0, pokeUntil: 0, born: performance.now(), visible: true, H: 0, W: 0, blinkStart: -1, nextBlink: 2400 };
+  const film = () => window.gadsdenFilm || { p: 0, load: 1, off: false };
+
+  function buddyLine(p, now) {
+    if (now < BU.pokeUntil) return BU.shown;
+    if (p < 0.06) {
+      if (now - BU.born < 700) return '';
+      const l = film().load;
+      return l < 1 ? `Loading the snake. ${Math.round(l * 100)}%` : 'Scroll. Wake it up.';
+    }
+    for (const L of BUDDY_LINES) if (p >= L.a && p < L.b) return L.text;
+    return '';
+  }
+  function sizeBuddy() {
+    const r = buddy.getBoundingClientRect();
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    BU.W = r.width; BU.H = r.height;
+    bcv.width = Math.max(1, Math.round(r.width * dpr));
+    bcv.height = Math.max(1, Math.round(r.height * dpr));
+  }
+  bfig.addEventListener('click', () => {
+    let n;
+    do { n = Math.floor(Math.random() * LINES.length); } while (LINES[n] === BU.shown && LINES.length > 1);
+    BU.shown = LINES[n];
+    bbub.textContent = BU.shown;
+    bbub.classList.add('on');
+    BU.pokeUntil = performance.now() + 2600;
+    BU.holdUntil = BU.pokeUntil;
+    BU.blinkStart = performance.now();
+    rattle();
+    if (!reduce) { bfig.classList.remove('shake'); void bfig.offsetWidth; bfig.classList.add('shake'); }
+  });
+  addEventListener('pointermove', e => {
+    if (!BU.visible || e.pointerType === 'touch') return;
+    const r = bfig.getBoundingClientRect();
+    BU.tx = clamp((e.clientX - (r.left + r.width / 2)) / (innerWidth * 0.5), -1, 1);
+    BU.ty = clamp((e.clientY - (r.top + r.height * 0.4)) / (innerHeight * 0.5), -1, 1);
+  }, { passive: true });
+
+  function buddyFrame(now, dt) {
+    if (!BU.visible || !GEO || film().off) return;
+    const p = film().p;
+    const portrait = innerHeight > innerWidth;
+    const line = buddyLine(p, now);
+    if (line) {
+      if (line !== BU.shown) { BU.shown = line; bbub.textContent = line; }
+      bbub.classList.add('on');
+      BU.holdUntil = Math.max(BU.holdUntil, now + 1400);
+    } else if (now > BU.holdUntil) {
+      bbub.classList.remove('on');
+    }
+    const talking = bbub.classList.contains('on');
+    // first screen: standing in full; during the film: peeking (desktop) or out of sight (phone); talking: pops up
+    let ts, tv;
+    if (p < 0.06) { ts = 1; tv = 1; }
+    else if (talking) { ts = portrait ? 0.8 : 0.62; tv = 0.72; }
+    else { ts = portrait ? 0.8 : 0.62; tv = portrait ? 0 : 0.5; }
+    const a = reduce ? 1 : 1 - Math.exp(-dt / 170);
+    BU.s += (ts - BU.s) * a;
+    BU.v += (tv - BU.v) * a;
+    const f = 1 - Math.exp(-dt / 140);
+    BU.x += (BU.tx - BU.x) * f; BU.y += (BU.ty - BU.y) * f;
+    const H = BU.H, s = BU.s, v = BU.v;
+    const bob = reduce ? 0 : Math.sin(now / 1000) * 3;
+    bfig.style.transform = `translate3d(0, ${(H * s * (1 - v) + bob).toFixed(1)}px, 0) scale(${s.toFixed(4)}) rotate(${(BU.x * 2.4).toFixed(2)}deg)`;
+    buddy.style.setProperty('--bub-y', `${Math.max(H * s * 0.14, H * s * (v - 0.4) - bob).toFixed(1)}px`);
+    buddy.style.setProperty('--bub-r', `${(BU.W * (0.5 + 0.43 * s)).toFixed(1)}px`);
+    if (!reduce && now > BU.nextBlink && BU.blinkStart < 0) { BU.blinkStart = now; BU.nextBlink = now + 2800 + Math.random() * 3400; }
+    let b = 0;
+    if (BU.blinkStart >= 0) {
+      const t = now - BU.blinkStart;
+      b = t < 70 ? t / 70 : t < 120 ? 1 : t < 230 ? 1 - (t - 120) / 110 : 0;
+      if (t >= 230) BU.blinkStart = -1;
+    }
+    bctx.setTransform(1, 0, 0, 1, 0, 0);
+    bctx.clearRect(0, 0, bcv.width, bcv.height);
+    drawAlon(bctx, { x: 0, y: 0, w: bcv.width, h: bcv.height }, { lines: shirtLines(shirtText), blink: b, glint: { x: BU.x, y: BU.y } });
   }
 
   /* ---------- Alon was there: vertical scroll moves the reel sideways ---------- */
@@ -1599,6 +1719,7 @@ p { text-wrap: pretty; }
   const io = new IntersectionObserver(entries => {
     for (const e of entries) {
       if (e.target === card) { R.visible = e.isIntersecting; if (R.visible) R.dirty = true; }
+      if (e.target === filmSec) BU.visible = e.isIntersecting;
       if (e.target === video) {
         if (e.isIntersecting && !reduce) {
           if (video.preload === 'none') video.preload = 'auto';
@@ -1608,6 +1729,7 @@ p { text-wrap: pretty; }
     }
   }, { rootMargin: '200px 0px' });
   io.observe(card);
+  io.observe(filmSec);
   if (video) io.observe(video);
 
   let queued = false;
@@ -1616,10 +1738,11 @@ p { text-wrap: pretty; }
     queued = true;
     requestAnimationFrame(() => { queued = false; reelScroll(); });
   }, { passive: true });
-  addEventListener('resize', () => { sizeRig(); reelLayout(); }, { passive: true });
+  addEventListener('resize', () => { sizeRig(); sizeBuddy(); reelLayout(); }, { passive: true });
 
   ready.then(() => {
     sizeRig();
+    sizeBuddy();
     renderShirtCard();
     requestAnimationFrame(cardFrame);
   }).catch(() => {

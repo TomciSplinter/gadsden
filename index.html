@@ -1563,18 +1563,33 @@ p { text-wrap: pretty; }
   }
   input.addEventListener('input', () => setShirt(input.value));
   for (const c of chips) c.addEventListener('click', () => { input.value = c.dataset.text; setShirt(c.dataset.text); input.focus(); });
-  form.addEventListener('submit', e => {
+  // In the Claude app viewer, saving goes through its downloads capability;
+  // on the live site a normal download link is used.
+  async function viewerDownloads() {
+    if (!window.claude || typeof window.claude.use !== 'function') return null;
+    try { return await window.claude.use('downloads'); } catch (err) { return null; }
+  }
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     renderShirtCard();
-    sc.toBlob(blob => {
-      if (!blob) { note.textContent = 'This browser could not make the image. Try another browser.'; return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'alon-shirt.png';
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      note.textContent = 'Downloading alon-shirt.png.';
-    }, 'image/png');
+    const blob = await new Promise(res => sc.toBlob(res, 'image/png'));
+    if (!blob) { note.textContent = 'This browser could not make the image. Try another browser.'; return; }
+    const dl = await viewerDownloads();
+    if (dl) {
+      try {
+        const r = await dl.save({ filename: 'alon-shirt.png', data: blob });
+        note.textContent = r && r.status === 'saved' ? 'Saved alon-shirt.png.' : '';
+      } catch (err) {
+        note.textContent = err && err.code === 'declined' ? 'Save cancelled.' : 'Saving is not available in this view. Open the live site to save.';
+      }
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'alon-shirt.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    note.textContent = 'Downloading alon-shirt.png.';
   });
 
   /* ---------- the arena loop behind Join ---------- */
